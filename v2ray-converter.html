@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+    <title>V2Ray Multi-Config Converter · FIXED</title>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Same beautiful CSS as before */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 0;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            height: 100vh;
+            /* Add this */
+            display: flex;
+            /* Add this */
+            flex-direction: column;
+            /* Add this */
+            padding: 1.5rem 1rem;
+            /* Reduce padding from 2rem to 1.5rem */
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            /* Reduce from 3rem to 1.5rem */
+            flex-shrink: 0;
+            /* Add this - prevents header from shrinking */
+        }
+
+
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5, #00c6fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            /* Reduce from 2rem to 1.5rem */
+            margin-top: 1.5rem;
+            /* Reduce from 2rem to 1.5rem */
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1.2rem 2.5rem;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00d2ff, #00c6fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .converter-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 2rem;
+            flex: 1;
+            /* Add this - takes remaining height */
+            min-height: 0;
+            /* Add this - important for flex children */
+        }
+
+        @media (max-width: 968px) {
+            .converter-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 1.5rem;
+            /* Reduce from 2rem to 1.5rem */
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            /* Add this */
+            flex-direction: column;
+            /* Add this */
+            height: 100%;
+            /* Add this */
+            min-height: 0;
+            /* Add this */
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .card-title i {
+            font-size: 1.8rem;
+            color: #00d2ff;
+        }
+
+        .card-title h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .upload-area {
+            border: 3px dashed rgba(0, 210, 255, 0.3);
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.02);
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-area:hover {
+            border-color: #00d2ff;
+            background: rgba(0, 210, 255, 0.05);
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            color: #00d2ff;
+            margin-bottom: 1rem;
+        }
+
+        .json-editor {
+            background: #0a0c12;
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            flex: 1;
+            /* Add this - takes remaining space */
+            min-height: 0;
+            /* Add this */
+            display: flex;
+            /* Add this */
+            flex-direction: column;
+            /* Add this */
+        }
+
+        textarea {
+            width: 100%;
+            height: 100% !important;
+            /* Change from fixed height to 100% */
+            background: #0a0c12;
+            color: #e4e4e4;
+            border: none;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            resize: none;
+            /* Change from 'vertical' to 'none' */
+            padding: 1rem;
+            border-radius: 12px;
+            outline: none;
+            flex: 1;
+            /* Add this */
+            min-height: 0;
+            /* Add this */
+        }
+
+
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab.active {
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            color: white;
+        }
+
+        .configs-container {
+            flex: 1;
+            /* Add this */
+            min-height: 0;
+            /* Add this */
+            overflow-y: auto;
+            /* Keep this for internal scroll */
+            padding-right: 0.5rem;
+        }
+
+        .configs-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .configs-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .configs-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            border-radius: 10px;
+        }
+
+        .config-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 5px solid;
+            transition: all 0.3s ease;
+        }
+
+        .config-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(5px);
+        }
+
+        .config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .protocol-badge {
+            padding: 0.4rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .badge-vless {
+            background: linear-gradient(45deg, #6b5b95, #9b8bc6);
+            border-left-color: #6b5b95;
+        }
+
+        .badge-trojan {
+            background: linear-gradient(45deg, #4ecdc4, #2aa79e);
+            border-left-color: #4ecdc4;
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .copy-btn:hover {
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            border-color: transparent;
+        }
+
+        .link-box {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            word-break: break-all;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: monospace;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .btn {
+            padding: 0.8rem 1.8rem;
+            border-radius: 30px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #00b09b, #96c93d);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #00d2ff;
+            color: #00d2ff;
+        }
+
+        .search-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 30px;
+            padding: 0.5rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            padding: 0.5rem 0;
+            outline: none;
+        }
+
+        .search-box input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(10, 12, 18, 0.95);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-left: 5px solid #00b09b;
+        }
+
+        .toast.error {
+            border-left: 5px solid #ff6b6b;
+        }
+
+        .file-info {
+            background: rgba(0, 210, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            color: #fff;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animated {
+            animation: slideIn 0.5s ease forwards;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>⚡ V2Ray Multi-Config Converter · FIXED</h1>
+            <p>Extracts ALL outbounds from EVERY config in your array</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="statConfigs">0</span>
+                    <span class="stat-label">Total Links</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="statVless">0</span>
+                    <span class="stat-label">VLESS</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="statTrojan">0</span>
+                    <span class="stat-label">Trojan</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="statConfigObjects">0</span>
+                    <span class="stat-label">Config Objects</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Converter -->
+        <div class="converter-grid">
+            <!-- Input Section -->
+            <div class="card animated">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-array"></i>
+                        <h2>JSON Array Input</h2>
+                    </div>
+                    <button class="btn btn-outline" onclick="loadSampleArray()">
+                        <i class="fas fa-flask"></i> Sample
+                    </button>
+                </div>
+
+                <!-- Upload Area -->
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Drop your config array here</h3>
+                    <p>or click to browse</p>
+                    <input type="file" id="fileInput" accept=".json,application/json" style="display: none;"
+                        onchange="handleFileSelect(this.files[0])">
+                </div>
+
+                <!-- JSON Editor -->
+                <div class="json-editor">
+                    <textarea id="jsonInput" placeholder='Paste your array of V2Ray JSON configs here...'></textarea>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-primary" onclick="convertArrayConfig()" style="flex: 2;">
+                        <i class="fas fa-sync-alt"></i> Extract ALL Outbounds
+                    </button>
+                    <button class="btn btn-outline" onclick="clearJson()" style="flex: 1;">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                </div>
+            </div>
+
+            <!-- Output Section -->
+            <div class="card animated">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-link"></i>
+                        <h2>Generated Links (<span id="linkCount">0</span>)</h2>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-outline" onclick="copyAllLinks()">
+                            <i class="fas fa-copy"></i> Copy All
+                        </button>
+                        <button class="btn btn-success" onclick="exportSubscription()">
+                            <i class="fas fa-file-export"></i> Export
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search -->
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search configs..." onkeyup="filterConfigs()">
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <div class="tab active" onclick="filterByProtocol('all', this)">
+                        <i class="fas fa-list"></i> All (<span id="countAll">0</span>)
+                    </div>
+                    <div class="tab" onclick="filterByProtocol('vless', this)">
+                        <i class="fas fa-bolt"></i> VLESS (<span id="countVless">0</span>)
+                    </div>
+                    <div class="tab" onclick="filterByProtocol('trojan', this)">
+                        <i class="fas fa-shield"></i> Trojan (<span id="countTrojan">0</span>)
+                    </div>
+                </div>
+
+                <!-- Configs Container -->
+                <div id="outputContainer" class="configs-container">
+                    <div style="text-align: center; padding: 3rem; color: rgba(255,255,255,0.5);">
+                        <i class="fas fa-magic" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <h3>Click "Extract ALL Outbounds" to convert</h3>
+                        <p>Your 24 configs will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <script>
+        // Store all generated links
+        let allGeneratedLinks = [];
+        let currentFilter = 'all';
+        let searchTerm = '';
+
+        // Handle File Upload
+        function handleFileSelect(file) {
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const json = JSON.parse(e.target.result);
+                    document.getElementById('jsonInput').value = JSON.stringify(json, null, 2);
+                    showToast(`Loaded ${Array.isArray(json) ? json.length : 1} config object(s)!`, 'success');
+
+                    const uploadArea = document.querySelector('.upload-area');
+                    const fileInfo = document.createElement('div');
+                    fileInfo.className = 'file-info';
+                    fileInfo.innerHTML = `
+                        <span><i class="fas fa-check-circle" style="color: #00d2ff;"></i> ${file.name}</span>
+                        <span style="color: rgba(255,255,255,0.7);">${(file.size / 1024).toFixed(1)} KB</span>
+                    `;
+
+                    const oldInfo = document.querySelector('.file-info');
+                    if (oldInfo) oldInfo.remove();
+
+                    uploadArea.appendChild(fileInfo);
+
+                    // Auto-convert after loading
+                    setTimeout(() => convertArrayConfig(), 100);
+                } catch (err) {
+                    showToast('Invalid JSON file!', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // FIXED: Extract ALL outbounds from ALL configs in the array
+        function convertArrayConfig() {
+            try {
+                const jsonInput = document.getElementById('jsonInput').value;
+                if (!jsonInput.trim()) {
+                    showToast('Please paste your JSON configs first!', 'error');
+                    return;
+                }
+
+                let configs = JSON.parse(jsonInput);
+
+                // Ensure it's an array
+                if (!Array.isArray(configs)) {
+                    configs = [configs];
+                }
+
+                allGeneratedLinks = [];
+                let totalOutboundsFound = 0;
+
+                // Process EACH config object in the array
+                configs.forEach((config, configIndex) => {
+                    const configRemarks = config.remarks || `Config ${configIndex + 1}`;
+
+                    // Check if outbounds exists and is an array
+                    if (config.outbounds && Array.isArray(config.outbounds)) {
+
+                        // Process EVERY outbound in the outbounds array (FIXED)
+                        config.outbounds.forEach((outbound, outboundIndex) => {
+                            // Skip non-proxy outbounds (dns, freedom, blackhole)
+                            const skipProtocols = ['dns', 'freedom', 'blackhole'];
+                            if (skipProtocols.includes(outbound.protocol)) {
+                                return;
+                            }
+
+                            // Generate link for this outbound
+                            const link = generateLink(outbound, `${configRemarks} - ${outbound.tag || `Outbound ${outboundIndex + 1}`}`);
+                            if (link) {
+                                allGeneratedLinks.push(link);
+                                totalOutboundsFound++;
+                            }
+                        });
+                    }
+
+                    // Also check for balancers and observatory (for the "Best Ping F" config)
+                    if (config.routing && config.routing.balancers) {
+                        // This config has multiple proxies in balancers
+                        console.log(`Found balancers in config ${configIndex + 1}`);
+                    }
+                });
+
+                // Update UI
+                if (allGeneratedLinks.length > 0) {
+                    displayLinks(allGeneratedLinks);
+                    updateStats();
+                    showToast(`✅ Extracted ${allGeneratedLinks.length} proxy links from ${configs.length} config objects!`, 'success');
+                } else {
+                    showToast('No supported proxy protocols found in JSON array', 'error');
+                }
+
+            } catch (err) {
+                showToast('Invalid JSON format! Make sure it\'s a valid array', 'error');
+                console.error(err);
+            }
+        }
+
+        // Generate subscription link (FIXED for IPv6 and all parameters)
+        function generateLink(outbound, remarks) {
+            const protocol = outbound.protocol ? outbound.protocol.toLowerCase() : '';
+            const settings = outbound.settings || {};
+            const stream = outbound.streamSettings || {};
+
+            try {
+                // VLESS Protocol
+                if (protocol.includes('vless') && settings.vnext && settings.vnext.length > 0) {
+                    const vnext = settings.vnext[0];
+                    if (!vnext.users || vnext.users.length === 0) return null;
+
+                    const user = vnext.users[0];
+
+                    // Clean address (remove brackets from IPv6)
+                    let address = vnext.address || '';
+                    if (address.startsWith('[') && address.endsWith(']')) {
+                        address = address.slice(1, -1);
+                    }
+
+                    // Build VLESS link
+                    let link = `vless://${user.id}@${address}:${vnext.port || 443}`;
+                    let params = [];
+
+                    // Required parameters
+                    params.push(`encryption=${user.encryption || 'none'}`);
+
+                    // Transport (network)
+                    if (stream.network) {
+                        params.push(`type=${stream.network}`);
+                    } else {
+                        params.push(`type=tcp`);
+                    }
+
+                    // WebSocket settings
+                    if (stream.wsSettings) {
+                        if (stream.wsSettings.path) {
+                            params.push(`path=${encodeURIComponent(stream.wsSettings.path)}`);
+                        }
+                        if (stream.wsSettings.host) {
+                            params.push(`host=${stream.wsSettings.host}`);
+                        }
+                        if (stream.wsSettings.headers && stream.wsSettings.headers.Host) {
+                            params.push(`host=${stream.wsSettings.headers.Host}`);
+                        }
+                    }
+
+                    // HTTP/2 or gRPC settings
+                    if (stream.httpSettings) {
+                        if (stream.httpSettings.path) params.push(`path=${encodeURIComponent(stream.httpSettings.path)}`);
+                        if (stream.httpSettings.host) params.push(`host=${stream.httpSettings.host}`);
+                    }
+
+                    if (stream.grpcSettings) {
+                        if (stream.grpcSettings.serviceName) params.push(`serviceName=${encodeURIComponent(stream.grpcSettings.serviceName)}`);
+                    }
+
+                    // TLS settings
+                    if (stream.security) {
+                        params.push(`security=${stream.security}`);
+                        if (stream.tlsSettings) {
+                            if (stream.tlsSettings.serverName || stream.tlsSettings.sni) {
+                                params.push(`sni=${stream.tlsSettings.serverName || stream.tlsSettings.sni}`);
+                            }
+                            if (stream.tlsSettings.fingerprint) {
+                                params.push(`fp=${stream.tlsSettings.fingerprint}`);
+                            }
+                            if (stream.tlsSettings.alpn && Array.isArray(stream.tlsSettings.alpn)) {
+                                params.push(`alpn=${stream.tlsSettings.alpn.join(',')}`);
+                            }
+                            if (stream.tlsSettings.allowInsecure !== undefined) {
+                                params.push(`allowInsecure=${stream.tlsSettings.allowInsecure}`);
+                            }
+                        }
+                    } else {
+                        params.push(`security=none`);
+                    }
+
+                    // Flow control (for Xray)
+                    if (user.flow) {
+                        params.push(`flow=${user.flow}`);
+                    }
+
+                    // Sockopt
+                    if (stream.sockopt) {
+                        if (stream.sockopt.domainStrategy) {
+                            params.push(`domainStrategy=${stream.sockopt.domainStrategy}`);
+                        }
+                    }
+
+                    link += '?' + params.join('&');
+
+                    // Add remarks
+                    if (remarks) {
+                        link += '#' + encodeURIComponent(remarks.replace(/[^\x00-\x7F]/g, '')); // Remove emojis for compatibility
+                    }
+
+                    return {
+                        protocol: 'vless',
+                        link: link,
+                        remarks: remarks,
+                        address: address,
+                        port: vnext.port || 443,
+                        network: stream.network || 'tcp',
+                        security: stream.security || 'none',
+                        tag: outbound.tag || ''
+                    };
+                }
+
+                // Trojan Protocol
+                else if (protocol.includes('trojan') && settings.servers && settings.servers.length > 0) {
+                    const server = settings.servers[0];
+
+                    // Clean address
+                    let address = server.address || '';
+                    if (address.startsWith('[') && address.endsWith(']')) {
+                        address = address.slice(1, -1);
+                    }
+
+                    if (!server.password) return null;
+
+                    // Build Trojan link
+                    let link = `trojan://${encodeURIComponent(server.password)}@${address}:${server.port || 443}`;
+                    let params = [];
+
+                    // TLS security (Trojan always uses TLS)
+                    params.push(`security=${stream.security || 'tls'}`);
+
+                    // SNI
+                    if (stream.tlsSettings) {
+                        if (stream.tlsSettings.serverName || stream.tlsSettings.sni) {
+                            params.push(`sni=${stream.tlsSettings.serverName || stream.tlsSettings.sni}`);
+                        }
+                        if (stream.tlsSettings.fingerprint) {
+                            params.push(`fp=${stream.tlsSettings.fingerprint}`);
+                        }
+                        if (stream.tlsSettings.alpn && Array.isArray(stream.tlsSettings.alpn)) {
+                            params.push(`alpn=${stream.tlsSettings.alpn.join(',')}`);
+                        }
+                        if (stream.tlsSettings.allowInsecure !== undefined) {
+                            params.push(`allowInsecure=${stream.tlsSettings.allowInsecure}`);
+                        }
+                    }
+
+                    // Transport (WebSocket, etc.)
+                    if (stream.network) {
+                        params.push(`type=${stream.network}`);
+
+                        // WebSocket settings
+                        if (stream.wsSettings) {
+                            if (stream.wsSettings.path) {
+                                params.push(`path=${encodeURIComponent(stream.wsSettings.path)}`);
+                            }
+                            if (stream.wsSettings.host) {
+                                params.push(`host=${stream.wsSettings.host}`);
+                            }
+                        }
+                    }
+
+                    // Add peer (for Trojan-go)
+                    if (server.peer) {
+                        params.push(`peer=${server.peer}`);
+                    }
+
+                    if (params.length > 0) {
+                        link += '?' + params.join('&');
+                    }
+
+                    // Add remarks
+                    if (remarks) {
+                        link += '#' + encodeURIComponent(remarks.replace(/[^\x00-\x7F]/g, ''));
+                    }
+
+                    return {
+                        protocol: 'trojan',
+                        link: link,
+                        remarks: remarks,
+                        address: address,
+                        port: server.port || 443,
+                        network: stream.network || 'tcp',
+                        security: stream.security || 'tls',
+                        tag: outbound.tag || ''
+                    };
+                }
+
+            } catch (err) {
+                console.error('Error generating link:', err, outbound);
+                return null;
+            }
+
+            return null;
+        }
+
+        // Display all generated links
+        function displayLinks(links) {
+            const container = document.getElementById('outputContainer');
+
+            if (links.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 3rem; color: rgba(255,255,255,0.5);"><i class="fas fa-times-circle" style="font-size: 3rem; margin-bottom: 1rem;"></i><h3>No configs found</h3></div>';
+                return;
+            }
+
+            // Filter links based on current filter and search
+            let filteredLinks = links;
+
+            if (currentFilter !== 'all') {
+                filteredLinks = filteredLinks.filter(item => item.protocol === currentFilter);
+            }
+
+            if (searchTerm) {
+                filteredLinks = filteredLinks.filter(item =>
+                    (item.remarks && item.remarks.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                    (item.address && item.address.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                    (item.protocol && item.protocol.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                    (item.tag && item.tag.toLowerCase().includes(searchTerm.toLowerCase()))
+                );
+            }
+
+            container.innerHTML = '';
+
+            filteredLinks.forEach((item, index) => {
+                const configCard = document.createElement('div');
+                configCard.className = `config-card animated badge-${item.protocol}`;
+                configCard.style.animationDelay = `${index * 0.03}s`;
+
+                // Format display
+                let displayAddress = item.address;
+                if (item.network === 'ws') displayAddress += ' (WebSocket)';
+                if (item.security === 'tls') displayAddress += ' 🔒';
+
+                // Shorten link for display
+                let displayLink = item.link;
+                if (displayLink.length > 80) {
+                    displayLink = displayLink.substring(0, 60) + '...' + displayLink.substring(displayLink.length - 20);
+                }
+
+                configCard.innerHTML = `
+                    <div class="config-header">
+                        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                            <span class="protocol-badge badge-${item.protocol}">${item.protocol.toUpperCase()}</span>
+                            <span style="font-weight: 500; color: #fff;">${item.remarks || `${item.protocol} Config`}</span>
+                            ${item.tag ? `<span style="background: rgba(255,255,255,0.1); padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.7rem;">${item.tag}</span>` : ''}
+                        </div>
+                        <button class="copy-btn" onclick="copyToClipboard('${item.link.replace(/'/g, "\\'")}', this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <div style="display: flex; gap: 1.5rem; margin-bottom: 0.8rem; color: rgba(255,255,255,0.7); font-size: 0.85rem; flex-wrap: wrap;">
+                        <span><i class="fas fa-server"></i> ${displayAddress}</span>
+                        <span><i class="fas fa-plug"></i> Port: ${item.port}</span>
+                        <span><i class="fas fa-network-wired"></i> ${item.network}</span>
+                        <span><i class="fas fa-shield-alt"></i> ${item.security}</span>
+                    </div>
+                    <div class="link-box" title="${item.link}">
+                        ${displayLink}
+                    </div>
+                `;
+
+                container.appendChild(configCard);
+            });
+
+            if (filteredLinks.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 3rem; color: rgba(255,255,255,0.5);"><i class="fas fa-filter" style="font-size: 3rem; margin-bottom: 1rem;"></i><h3>No matching configs</h3></div>';
+            }
+
+            // Update link count in header
+            document.getElementById('linkCount').textContent = filteredLinks.length;
+        }
+
+        // Update statistics
+        function updateStats() {
+            const vlessCount = allGeneratedLinks.filter(item => item.protocol === 'vless').length;
+            const trojanCount = allGeneratedLinks.filter(item => item.protocol === 'trojan').length;
+
+            document.getElementById('statConfigs').textContent = allGeneratedLinks.length;
+            document.getElementById('statVless').textContent = vlessCount;
+            document.getElementById('statTrojan').textContent = trojanCount;
+
+            // Count config objects (from JSON)
+            try {
+                const jsonInput = document.getElementById('jsonInput').value;
+                if (jsonInput.trim()) {
+                    const configs = JSON.parse(jsonInput);
+                    document.getElementById('statConfigObjects').textContent = Array.isArray(configs) ? configs.length : 1;
+                } else {
+                    document.getElementById('statConfigObjects').textContent = '0';
+                }
+            } catch {
+                document.getElementById('statConfigObjects').textContent = '?';
+            }
+
+            // Update tab counters
+            document.getElementById('countAll').textContent = allGeneratedLinks.length;
+            document.getElementById('countVless').textContent = vlessCount;
+            document.getElementById('countTrojan').textContent = trojanCount;
+        }
+
+        // Filter by protocol
+        function filterByProtocol(protocol, element) {
+            currentFilter = protocol;
+
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            element.classList.add('active');
+
+            displayLinks(allGeneratedLinks);
+        }
+
+        // Filter by search
+        function filterConfigs() {
+            searchTerm = document.getElementById('searchInput').value;
+            displayLinks(allGeneratedLinks);
+        }
+
+        // Copy to clipboard
+        function copyToClipboard(text, btn) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                btn.style.background = 'linear-gradient(45deg, #00b09b, #96c93d)';
+
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.style.background = 'rgba(255,255,255,0.1)';
+                }, 2000);
+
+                showToast('✅ Link copied to clipboard!', 'success');
+            }).catch(() => {
+                showToast('❌ Failed to copy', 'error');
+            });
+        }
+
+        // Copy all links
+        function copyAllLinks() {
+            if (allGeneratedLinks.length === 0) {
+                showToast('No links to copy!', 'error');
+                return;
+            }
+
+            const allLinks = allGeneratedLinks.map(item => item.link).join('\n');
+            navigator.clipboard.writeText(allLinks).then(() => {
+                showToast(`📋 Copied ALL ${allGeneratedLinks.length} links to clipboard!`, 'success');
+            });
+        }
+
+        // Export subscription
+        function exportSubscription() {
+            if (allGeneratedLinks.length === 0) {
+                showToast('No links to export!', 'error');
+                return;
+            }
+
+            const allLinks = allGeneratedLinks.map(item => item.link).join('\n');
+
+            // Create download link
+            const blob = new Blob([allLinks], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `v2ray-subscription-${allGeneratedLinks.length}configs-${new Date().getTime()}.txt`;
+            a.click();
+
+            showToast(`📥 Exported ${allGeneratedLinks.length} configs!`, 'success');
+        }
+
+        // Load sample array
+        function loadSampleArray() {
+            // This is a simplified sample - your actual config will have all 24 outbounds
+            const sampleArray = [
+                {
+                    "remarks": "💦 1 - VLESS - Domain : 443",
+                    "outbounds": [
+                        {
+                            "protocol": "vless",
+                            "tag": "proxy-1",
+                            "settings": {
+                                "vnext": [
+                                    {
+                                        "address": "belami.qmotlaq.workers.dev",
+                                        "port": 443,
+                                        "users": [
+                                            {
+                                                "id": "310cd1c4-1d23-4f1f-8fd4-215915cc210f",
+                                                "encryption": "none"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "streamSettings": {
+                                "network": "ws",
+                                "wsSettings": {
+                                    "host": "belami.qmotlaq.workers.dev",
+                                    "path": "/vless?ed=2560"
+                                },
+                                "security": "tls",
+                                "tlsSettings": {
+                                    "serverName": "belami.qmotlaq.workers.dev",
+                                    "fingerprint": "chrome"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ];
+
+            document.getElementById('jsonInput').value = JSON.stringify(sampleArray, null, 2);
+            showToast('Sample array loaded! Paste your full 24-config array', 'success');
+        }
+
+        // Clear JSON input
+        function clearJson() {
+            document.getElementById('jsonInput').value = '';
+            document.getElementById('outputContainer').innerHTML = '<div style="text-align: center; padding: 3rem; color: rgba(255,255,255,0.5);"><i class="fas fa-magic" style="font-size: 3rem; margin-bottom: 1rem;"></i><h3>Click "Extract ALL Outbounds" to convert</h3><p>Your 24 configs will appear here</p></div>';
+            allGeneratedLinks = [];
+            updateStats();
+            document.getElementById('linkCount').textContent = '0';
+
+            const fileInfo = document.querySelector('.file-info');
+            if (fileInfo) fileInfo.remove();
+        }
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+
+            toast.className = 'toast ' + type;
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Drag and drop support
+        document.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        document.addEventListener('drop', (e) => {
+            e.preventDefault();
+
+            if (e.target.closest('.upload-area')) {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileSelect(files[0]);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
